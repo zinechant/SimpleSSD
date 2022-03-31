@@ -18,6 +18,7 @@
  */
 
 #include "PALStatistics.h"
+
 #include "util/algorithm.hh"
 #include "util/old/SimpleSSD_types.h"
 
@@ -81,11 +82,11 @@ void PALStatistics::Value::init() {
   cnt = 0;
   sampled_sum = 0;
   sampled_cnt = 0;
-  minval = MAX64;
+  minval = MAF64;
   maxval = 0;
   legacy_sum = 0;
   legacy_cnt = 0;
-  legacy_minval = MAX64;
+  legacy_minval = MAF64;
   legacy_maxval = 0;
 }
 void PALStatistics::Value::backup() {

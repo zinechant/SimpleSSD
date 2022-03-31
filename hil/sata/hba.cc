@@ -377,7 +377,8 @@ void HBA::handleRequest() {
     schedule(requestEvent, tick + requestInterval);
   }
   else {
-    schedule(workEvent, MAX(tick + requestInterval, lastWorkAt + workInterval));
+    schedule(workEvent,
+             std::max(tick + requestInterval, lastWorkAt + workInterval));
   }
 }
 

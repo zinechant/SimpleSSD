@@ -47,7 +47,6 @@ void deInitCPU();
 void getCPUStatList(std::vector<Stats> &, std::string);
 void getCPUStatValues(std::vector<double> &);
 void resetCPUStatValues();
-void printCPULastStat();
 
 void execute(CPU::NAMESPACE, CPU::FUNCTION, DMAFunction &, void * = nullptr,
              uint64_t = 0);

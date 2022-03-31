@@ -22,13 +22,13 @@
 
 #include <list>
 
-#include "dram/abstract_dram.hh"
+#include "util/simplessd.hh"
 
 namespace SimpleSSD {
 
 namespace DRAM {
 
-class SimpleDRAM : public AbstractDRAM {
+class SimpleDRAM {
  private:
   struct Stat {
     uint64_t count;
@@ -36,6 +36,9 @@ class SimpleDRAM : public AbstractDRAM {
 
     Stat();
   };
+
+  Config::DRAMStructure *pStructure;
+  Config::DRAMTiming *pTiming;
 
   uint64_t pageFetchLatency;
   double interfaceBandwidth;
@@ -48,22 +51,22 @@ class SimpleDRAM : public AbstractDRAM {
   Stat readStat;
   Stat writeStat;
 
-  uint64_t updateDelay(uint64_t, uint64_t &);
+  void updateDelay(uint64_t, uint64_t &);
   void updateStats(uint64_t);
 
  public:
   SimpleDRAM(ConfigReader &p);
   ~SimpleDRAM();
 
-  void read(void *, uint64_t, uint64_t &) override;
-  void write(void *, uint64_t, uint64_t &) override;
+  void read(void *, uint64_t, uint64_t &);
+  void write(void *, uint64_t, uint64_t &);
 
-  void setScheduling(bool) override;
-  bool isScheduling() override;
+  void setScheduling(bool);
+  bool isScheduling();
 
-  void getStatList(std::vector<Stats> &, std::string) override;
-  void getStatValues(std::vector<double> &) override;
-  void resetStatValues() override;
+  void getStatList(std::vector<Stats> &, std::string);
+  void getStatValues(std::vector<double> &);
+  void resetStatValues();
 };
 
 }  // namespace DRAM

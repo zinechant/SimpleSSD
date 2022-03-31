@@ -1814,7 +1814,7 @@ bool OpenChannelSSD20::getLogPage(SQEntryWrapper &req, RequestFunction &func) {
     delete pContext->dma;
     delete pContext;
   };
-  DMAFunction smartInfo = [this, offset](uint64_t, void *context) {
+  DMAFunction smartInfo = [offset](uint64_t, void *context) {
     IOContext *pContext = (IOContext *)context;
 
     pContext->dma->write(offset, pContext->nlb, pContext->buffer, dmaDone,

@@ -105,6 +105,7 @@ propType get##propName() const { return propName; };
 Type & Struct
 ==============================*/
 #define MAX64 0xFFFFFFFFFFFFFFFF
+#define MAF64 18446744073709551616.0
 #define MAX32 0xFFFFFFFF
 
 #define  BYTE (1)

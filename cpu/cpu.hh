@@ -23,12 +23,12 @@
 #define __CPU_CPU__
 
 #include <cinttypes>
+#include <list>
 #include <queue>
 #include <unordered_map>
 #include <vector>
 
 #include "cpu/def.hh"
-#include "lib/mcpat/mcpat.h"
 #include "sim/config_reader.hh"
 #include "sim/dma_interface.hh"
 #include "sim/simulator.hh"
@@ -116,7 +116,6 @@ class CPU : public StatObject {
   std::unordered_map<uint16_t, std::unordered_map<uint16_t, InstStat>> cpi;
 
   uint32_t leastBusyCPU(std::vector<Core> &);
-  void calculatePower(Power &);
 
  public:
   CPU(ConfigReader &);
@@ -129,8 +128,6 @@ class CPU : public StatObject {
   void getStatList(std::vector<Stats> &, std::string) override;
   void getStatValues(std::vector<double> &) override;
   void resetStatValues() override;
-
-  void printLastStat();
 };
 
 }  // namespace CPU

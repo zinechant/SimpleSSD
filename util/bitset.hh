@@ -64,9 +64,9 @@ class Bitset {
   Bitset &operator=(Bitset &&) noexcept;
   Bitset operator~() const;
 
-  friend Bitset &operator&(Bitset lhs, const Bitset &rhs) { return lhs &= rhs; }
-  friend Bitset &operator|(Bitset lhs, const Bitset &rhs) { return lhs |= rhs; }
-  friend Bitset &operator^(Bitset lhs, const Bitset &rhs) { return lhs ^= rhs; }
+  friend Bitset operator&(Bitset lhs, const Bitset &rhs) { return lhs &= rhs; }
+  friend Bitset operator|(Bitset lhs, const Bitset &rhs) { return lhs |= rhs; }
+  friend Bitset operator^(Bitset lhs, const Bitset &rhs) { return lhs ^= rhs; }
   friend bool operator==(const Bitset &lhs, const Bitset &rhs) {
     bool ret = true;
 

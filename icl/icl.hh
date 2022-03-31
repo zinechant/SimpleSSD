@@ -20,7 +20,7 @@
 #ifndef __ICL_ICL__
 #define __ICL_ICL__
 
-#include "dram/abstract_dram.hh"
+#include "dram/simple.hh"
 #include "ftl/ftl.hh"
 #include "icl/abstract_cache.hh"
 #include "util/simplessd.hh"
@@ -32,7 +32,7 @@ namespace ICL {
 class ICL : public StatObject {
  private:
   FTL::FTL *pFTL;
-  DRAM::AbstractDRAM *pDRAM;
+  DRAM::SimpleDRAM *pDRAM;
 
   ConfigReader &conf;
   AbstractCache *pCache;

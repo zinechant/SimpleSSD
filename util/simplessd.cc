@@ -40,7 +40,5 @@ ConfigReader initSimpleSSDEngine(Simulator *sim, std::ostream *info,
 }
 
 void releaseSimpleSSDEngine() {
-  printCPULastStat();
-
   deInitCPU();
 }

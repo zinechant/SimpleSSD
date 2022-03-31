@@ -30,14 +30,14 @@ namespace DRAM {
 SimpleDRAM::Stat::Stat() : count(0), size(0) {}
 
 SimpleDRAM::SimpleDRAM(ConfigReader &p)
-    : AbstractDRAM(p), lastDRAMAccess(0), ignoreScheduling(false) {
+    : lastDRAMAccess(0), ignoreScheduling(false) {
+  pStructure = p.getDRAMStructure();
+  pTiming = p.getDRAMTiming();
   pageFetchLatency = pTiming->tRP + pTiming->tRAS;
   interfaceBandwidth = 2.0 * pStructure->busWidth * pStructure->chip *
                        pStructure->channel / 8.0 / pTiming->tCK;
 
   autoRefresh = allocate([this](uint64_t now) {
-    dramPower->doCommand(Data::MemCommand::REF, 0, now / pTiming->tCK);
-
     lastDRAMAccess = MAX(lastDRAMAccess, now + pTiming->tRFC);
 
     schedule(autoRefresh, now + REFRESH_PERIOD);
@@ -50,9 +50,7 @@ SimpleDRAM::~SimpleDRAM() {
   // DO NOTHING
 }
 
-uint64_t SimpleDRAM::updateDelay(uint64_t latency, uint64_t &tick) {
-  uint64_t beginAt = tick;
-
+void SimpleDRAM::updateDelay(uint64_t latency, uint64_t &tick) {
   if (tick > 0) {
     if (ignoreScheduling) {
       tick += latency;
@@ -62,25 +60,12 @@ uint64_t SimpleDRAM::updateDelay(uint64_t latency, uint64_t &tick) {
         lastDRAMAccess = tick + latency;
       }
       else {
-        beginAt = lastDRAMAccess;
         lastDRAMAccess += latency;
       }
 
       tick = lastDRAMAccess;
     }
   }
-
-  return beginAt;
-}
-
-void SimpleDRAM::updateStats(uint64_t cycle) {
-  dramPower->calcWindowEnergy(cycle);
-
-  auto &energy = dramPower->getEnergy();
-  auto &power = dramPower->getPower();
-
-  totalEnergy += energy.window_energy;
-  totalPower = power.average_power;
 }
 
 void SimpleDRAM::setScheduling(bool enable) {
@@ -96,28 +81,9 @@ void SimpleDRAM::read(void *, uint64_t size, uint64_t &tick) {
   uint64_t latency =
       (uint64_t)(pageCount * (pageFetchLatency +
                               pStructure->pageSize / interfaceBandwidth));
-
-  uint64_t beginAt = updateDelay(latency, tick);
-
-  // DRAMPower uses cycle unit
-  beginAt /= pTiming->tCK;
-
-  dramPower->doCommand(Data::MemCommand::ACT, 0, beginAt);
-
-  for (uint64_t i = 0; i < pageCount; i++) {
-    dramPower->doCommand(Data::MemCommand::RD, 0,
-                         beginAt + spec.memTimingSpec.RCD);
-
-    beginAt += spec.memTimingSpec.RCD;
-  }
-
-  beginAt -= spec.memTimingSpec.RCD;
-
-  dramPower->doCommand(Data::MemCommand::PRE, 0,
-                       beginAt + spec.memTimingSpec.RAS);
+  updateDelay(latency, tick);
 
   // Stat Update
-  updateStats(beginAt + spec.memTimingSpec.RAS + spec.memTimingSpec.RP);
   readStat.count++;
   readStat.size += size;
 }
@@ -127,36 +93,15 @@ void SimpleDRAM::write(void *, uint64_t size, uint64_t &tick) {
   uint64_t latency =
       (uint64_t)(pageCount * (pageFetchLatency +
                               pStructure->pageSize / interfaceBandwidth));
-
-  uint64_t beginAt = updateDelay(latency, tick);
-
-  // DRAMPower uses cycle unit
-  beginAt /= pTiming->tCK;
-
-  dramPower->doCommand(Data::MemCommand::ACT, 0, beginAt);
-
-  for (uint64_t i = 0; i < pageCount; i++) {
-    dramPower->doCommand(Data::MemCommand::WR, 0,
-                         beginAt + spec.memTimingSpec.RCD);
-
-    beginAt += spec.memTimingSpec.RCD;
-  }
-
-  beginAt -= spec.memTimingSpec.RCD;
-
-  dramPower->doCommand(Data::MemCommand::PRE, 0,
-                       beginAt + spec.memTimingSpec.RAS);
+  updateDelay(latency, tick);
 
   // Stat Update
-  updateStats(beginAt + spec.memTimingSpec.RAS + spec.memTimingSpec.RP);
   writeStat.count++;
   writeStat.size += size;
 }
 
 void SimpleDRAM::getStatList(std::vector<Stats> &list, std::string prefix) {
   Stats temp;
-
-  AbstractDRAM::getStatList(list, prefix);
 
   temp.name = prefix + "read.request_count";
   temp.desc = "Read request count";
@@ -184,8 +129,6 @@ void SimpleDRAM::getStatList(std::vector<Stats> &list, std::string prefix) {
 }
 
 void SimpleDRAM::getStatValues(std::vector<double> &values) {
-  AbstractDRAM::getStatValues(values);
-
   values.push_back(readStat.count);
   values.push_back(readStat.size);
   values.push_back(writeStat.count);
@@ -195,8 +138,6 @@ void SimpleDRAM::getStatValues(std::vector<double> &values) {
 }
 
 void SimpleDRAM::resetStatValues() {
-  AbstractDRAM::resetStatValues();
-
   readStat = Stat();
   writeStat = Stat();
 }

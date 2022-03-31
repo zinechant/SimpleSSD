@@ -20,7 +20,7 @@
 #ifndef __FTL_FTL__
 #define __FTL_FTL__
 
-#include "dram/abstract_dram.hh"
+#include "dram/simple.hh"
 #include "pal/pal.hh"
 #include "util/simplessd.hh"
 
@@ -46,10 +46,10 @@ class FTL : public StatObject {
 
   ConfigReader &conf;
   AbstractFTL *pFTL;
-  DRAM::AbstractDRAM *pDRAM;
+  DRAM::SimpleDRAM *pDRAM;
 
  public:
-  FTL(ConfigReader &, DRAM::AbstractDRAM *);
+  FTL(ConfigReader &, DRAM::SimpleDRAM *);
   ~FTL();
 
   void read(Request &, uint64_t &);

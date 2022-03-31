@@ -66,12 +66,6 @@ void resetCPUStatValues() {
   }
 }
 
-void printCPULastStat() {
-  if (cpu) {
-    cpu->printLastStat();
-  }
-}
-
 void execute(CPU::NAMESPACE ns, CPU::FUNCTION fct, DMAFunction &func,
              void *context, uint64_t delay) {
   if (cpu) {

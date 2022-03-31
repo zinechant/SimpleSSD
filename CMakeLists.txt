@@ -27,31 +27,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-# Set cache entry for external library include path
-set(DRAMPOWER_SOURCE_DIR "." CACHE PATH "Source directory to DRAMPower library")
-
-# Check DRAMPOWER_SOURCE_DIR is valid
-if (NOT EXISTS "${DRAMPOWER_SOURCE_DIR}/libdrampower/LibDRAMPower.h")
-  message(FATAL_ERROR "Failed to find DRAMPower library. \
-Check you specified DRAMPower path by -DDRAMPOWER_SOURCE_DIR.")
-endif ()
-
-# Check mcpat is valid
-if (NOT EXISTS "${PROJECT_SOURCE_DIR}/lib/mcpat/mcpat.h")
-  message(FATAL_ERROR "Failed to find McPAT library. \
-Check you initialized submodules.")
-endif ()
-
-# Add subproject
-add_subdirectory(${PROJECT_SOURCE_DIR}/lib/mcpat)
-
 # Set include directories
 include_directories(
   ${PROJECT_SOURCE_DIR}
-  ${PROJECT_SOURCE_DIR}/lib/mcpat
-  ${PROJECT_SOURCE_DIR}/lib/mcpat/cacti
   ${PROJECT_SOURCE_DIR}/lib/inih
-  ${DRAMPOWER_SOURCE_DIR}
 )
 
 # Platform specific settings
@@ -63,7 +42,7 @@ if (MSVC)
   add_compile_options(/wd4305)  # Surpress truncation warning
   add_compile_options(/wd4800)  # Surpress int -> boolean waring
 else ()
-  set(CMAKE_CXX_FLAGS "-g -rdynamic -Wall -Wextra -Werror ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_CXX_FLAGS "-g -Wall -Wextra -Werror ${CMAKE_CXX_FLAGS}")
 
   if (DEBUG_BUILD)
     set(CMAKE_CXX_FLAGS "-O0 ${CMAKE_CXX_FLAGS}")
@@ -87,7 +66,6 @@ set(SRC_CPU
   cpu/cpu.cc
 )
 set(SRC_DRAM
-  dram/abstract_dram.cc
   dram/config.cc
   dram/simple.cc
 )
@@ -195,4 +173,4 @@ add_library(simplessd STATIC
   ${SRC_SIM}
   ${SRC_UTIL}
 )
-target_link_libraries(simplessd mcpat)
+target_link_libraries(simplessd)
